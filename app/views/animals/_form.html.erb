@@ -17,23 +17,26 @@
   </div>
 
   <div class="field">
-    <%= form.label :date %>
+    <%= form.label :date_in %>
     <%= form.date_select :date, id: :animal_date %>
+  </div>
+  <div class="field">
+    <%= form.label :date_out %>
+    <%= form.date_select :enddate, id: :animal_end_date %>
   </div>
 
   <div class="field">
     <%= form.label :room %>
     <%= form.text_field :room, id: :animal_room %>
   </div>
+  <div class="field">
+    <%= form.label :cage %>
+    <%= form.text_field :cage, id: :animal_cage %>
+  </div>
 
   <div class="field">
     <%= form.label :reloc_seq %>
     <%= form.number_field :reloc_seq, id: :animal_reloc_seq %>
-  </div>
-
-  <div class="field">
-    <%= form.label :objectId %>
-    <%= form.text_field :objectId, id: :animal_objectId %>
   </div>
 
   <div class="actions">

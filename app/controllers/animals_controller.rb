@@ -50,6 +50,25 @@ class AnimalsController < ApplicationController
   # PATCH/PUT /animals/1
   # PATCH/PUT /animals/1.json
   def update
+    auth = {:username => ENV['LABKEY_USERNAME'], :password => ENV['LABKEY_PASSWORD']}
+
+    @result = HTTParty.post("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/updateRows.api",:basic_auth => auth,
+    :body => {"schemaName": "study",
+              "queryName": "housing",
+              "rows": [
+                {"participantId": animal_params[:participantId],
+                 "modifiedBy": 1004,
+                 "date": "2014-05-07 00:00:00.000",
+                 "enddate": "2014-05-08 00:00:00.000",
+                 "room": animal_params[:room],
+                 "reloc_seq": animal_params[:reloc_seq],
+                 "objectId":"4371A365-D362-4D08-BB86-917A70B9AB9D"
+                 }
+              ]
+            }.to_json,
+    :headers => { 'Content-Type' => 'application/json' } )
+    puts @result
+
     respond_to do |format|
       if @animal.update(animal_params)
         format.html { redirect_to @animal, notice: 'Animal was successfully updated.' }
@@ -79,6 +98,6 @@ class AnimalsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def animal_params
-      params.require(:animal).permit(:participantId, :date, :room, :reloc_seq, :objectId)
+      params.require(:animal).permit(:participantId, :date, :room, :reloc_seq, :objectId,:enddate,:cage)
     end
 end
