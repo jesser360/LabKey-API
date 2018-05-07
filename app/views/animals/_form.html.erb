@@ -1,0 +1,42 @@
+<%= form_with(model: animal, local: true) do |form| %>
+  <% if animal.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(animal.errors.count, "error") %> prohibited this animal from being saved:</h2>
+
+      <ul>
+      <% animal.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :participantId %>
+    <%= form.number_field :participantId, id: :animal_participantId %>
+  </div>
+
+  <div class="field">
+    <%= form.label :date %>
+    <%= form.date_select :date, id: :animal_date %>
+  </div>
+
+  <div class="field">
+    <%= form.label :room %>
+    <%= form.text_field :room, id: :animal_room %>
+  </div>
+
+  <div class="field">
+    <%= form.label :reloc_seq %>
+    <%= form.number_field :reloc_seq, id: :animal_reloc_seq %>
+  </div>
+
+  <div class="field">
+    <%= form.label :objectId %>
+    <%= form.text_field :objectId, id: :animal_objectId %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

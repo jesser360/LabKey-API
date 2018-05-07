@@ -1,0 +1,15 @@
+<h1>Animal Housing Search</h1>
+<h4>Search By Id for Animal Housing history</h4>
+<br /><% flash.each do |name, msg| %>
+<div class="myAlert<% if name==" error" %> alert-danger <% elsif name==" success" %> alert-success <% else %> alert-info <% end %>">
+<%= msg %>
+</div>
+<% end %>
+<br><br>
+<%= form_for @animal,:url => url_for(:action => 'create', :controller => 'animals'),
+    :method => 'post' do |f| %>
+<%= f.label :participantId, 'Id' %><br>
+<%= f.text_field :participantId, class: "form-control zipcode", placeholder: 'Search here'%>
+<%= f.submit "Search", class: 'btn btn-primary btn-md center-block search' %>
+<%end%>
+<br><br>

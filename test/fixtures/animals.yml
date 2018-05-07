@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  participantId: 1
+  date: 2018-05-07
+  room: MyString
+  reloc_seq: 1
+  objectId: MyString
+
+two:
+  participantId: 1
+  date: 2018-05-07
+  room: MyString
+  reloc_seq: 1
+  objectId: MyString
