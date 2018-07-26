@@ -13,3 +13,14 @@
  *= require_tree .
  *= require_self
  */
+
+
+ body .ui-autocomplete {
+   background-color: white;
+   width:50px;
+ }
+ 
+ body .ui-autocomplete :hover{
+   background-color: darkblue;
+   color:white;
+}

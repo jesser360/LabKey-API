@@ -16,12 +16,11 @@ class AnimalsController < ApplicationController
     @animal = Animal.find_by_id(params[:id])
     @participantId = @animal.participantId
     @history_hash = fetch_animal(@participantId)
-    # assign_values(weather_hash)
   end
 
   def fetch_animal participantId
-    auth = {:username => ENV['LABKEY_USERNAME'], :password => ENV['LABKEY_PASSWORD']}
-    @response = HTTParty.get("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/selectRows.api?schemaName=study&query.queryName=housing&query.maxRows=10&query.participantid~eq=#{participantId}",:basic_auth => auth)
+    auth = {:username => 'apikey', :password => ENV['LABKEY_API_KEY']}
+    @response = HTTParty.get("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/selectRows.api?schemaName=study&query.queryName=housing&query.maxRows=40&query.participantid~eq=#{participantId}",:basic_auth => auth)
 
   end
 
@@ -29,16 +28,52 @@ class AnimalsController < ApplicationController
   # GET /animals/new
   def new
     @animal = Animal.new
+
+    auth = {:username => 'apikey', :password => ENV['LABKEY_API_KEY']}
+    @rooms = []
+    @response = HTTParty.get("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/selectRows.api?schemaName=ehr_lookups&query.queryName=rooms&query",:basic_auth => auth)
+    @response['rows'].each do |row|
+       @rooms.push(row['room'])
+    end
+
   end
 
   # GET /animals/1/edit
   def edit
+    auth = {:username => 'apikey', :password => ENV['LABKEY_API_KEY']}
+    @rooms = []
+    @response = HTTParty.get("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/selectRows.api?schemaName=ehr_lookups&query.queryName=rooms&query",:basic_auth => auth)
+    @response['rows'].each do |row|
+       @rooms.push(row['room'])
+    end
   end
 
   # POST /animals
   # POST /animals.json
   def create
     @search = Animal.new(animal_params)
+    auth = {:username => 'apikey', :password => ENV['LABKEY_API_KEY']}
+    @participantId = animal_params[:participantId]
+    @previous = HTTParty.get("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/selectRows.api?schemaName=study&query.queryName=housing&query.maxRows=1&query.participantid~eq=#{@participantId}",:basic_auth => auth)
+    @result = HTTParty.post("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/insertRows.api",:basic_auth => auth,
+    :body => {"schemaName": "study",
+              "queryName": "housing",
+              "command": "update",
+              "rowsAffected": 1,
+              "rows": [
+                {"participantId": animal_params[:participantId],
+                 "modifiedBy": 1004,
+                 # "date": @previous['rows'][0]['enddate'],
+                 "date": animal_params[:date],
+                 "room": animal_params[:room],
+                 "cage": animal_params[:cage],
+                 "reloc_seq": @previous['rows'][0]['reloc_seq'].to_i + 1,
+                 "Key":SecureRandom.hex.to_s
+                 }
+              ]
+            }.to_json,
+    :headers => { 'Content-Type' => 'application/json' } )
+    puts @result
     if @search.save
       redirect_to animal_path(@search)
     else
@@ -50,24 +85,24 @@ class AnimalsController < ApplicationController
   # PATCH/PUT /animals/1
   # PATCH/PUT /animals/1.json
   def update
-    auth = {:username => ENV['LABKEY_USERNAME'], :password => ENV['LABKEY_PASSWORD']}
-
-    @result = HTTParty.post("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/updateRows.api",:basic_auth => auth,
+    auth = {:username => 'apikey', :password => ENV['LABKEY_API_KEY']}
+    @result = HTTParty.post("http://pczt-win-lbk-a1.primate.ucdavis.edu:8080/labkey/query/CNPRC/insertRows.api",:basic_auth => auth,
     :body => {"schemaName": "study",
               "queryName": "housing",
+              "command": "update",
+              "rowsAffected": 1,
               "rows": [
                 {"participantId": animal_params[:participantId],
                  "modifiedBy": 1004,
                  "date": "2014-05-07 00:00:00.000",
                  "enddate": "2014-05-08 00:00:00.000",
-                 "room": animal_params[:room],
+                 "room": params['room'],
                  "reloc_seq": animal_params[:reloc_seq],
-                 "objectId":"4371A365-D362-4D08-BB86-917A70B9AB9D"
+                 "Key":SecureRandom.hex.to_s
                  }
               ]
             }.to_json,
     :headers => { 'Content-Type' => 'application/json' } )
-    puts @result
 
     respond_to do |format|
       if @animal.update(animal_params)
